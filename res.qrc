@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon.png</file>
+        <file>zoom1.svg</file>
+        <file>zoomfit.svg</file>
+        <file>rotateleft.svg</file>
+        <file>rotateright.svg</file>
+        <file>trash.svg</file>
+        <file>display.svg</file>
+    </qresource>
+</RCC>
