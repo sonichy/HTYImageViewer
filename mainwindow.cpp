@@ -193,6 +193,8 @@ void MainWindow::loadImage(QString spath)
     if(zoomType == ZoomFit){
         pixmap = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
+    if(isFullScreen())
+        qDebug() << "zoom" << pixmap.size();
     ui->label->setPixmap(pixmap);
     setWindowTitle(QFileInfo(spath).fileName());
 }
