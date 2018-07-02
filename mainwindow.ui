@@ -17,7 +17,7 @@
    <string>海天鹰看图</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset resource="../HTYEdit/qtrf.qrc">
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -100,6 +100,7 @@
      <string>文件</string>
     </property>
     <addaction name="action_open"/>
+    <addaction name="action_printPreview"/>
     <addaction name="action_print"/>
     <addaction name="action_quit"/>
    </widget>
@@ -164,7 +165,7 @@
   </action>
   <action name="actionZoom1">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/zoom1.svg</normaloff>:/zoom1.svg</iconset>
    </property>
    <property name="text">
@@ -173,13 +174,10 @@
    <property name="toolTip">
     <string>原始大小</string>
    </property>
-   <property name="shortcut">
-    <string>1</string>
-   </property>
   </action>
   <action name="actionZoomFit">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/zoomfit.svg</normaloff>:/zoomfit.svg</iconset>
    </property>
    <property name="text">
@@ -188,37 +186,28 @@
    <property name="toolTip">
     <string>适应窗口</string>
    </property>
-   <property name="shortcut">
-    <string>F</string>
-   </property>
   </action>
   <action name="actionRotateLeft">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/rotateleft.svg</normaloff>:/rotateleft.svg</iconset>
    </property>
    <property name="text">
     <string>rotateLeft</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+L</string>
-   </property>
   </action>
   <action name="actionRotateRight">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/rotateright.svg</normaloff>:/rotateright.svg</iconset>
    </property>
    <property name="text">
     <string>rotateRight</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
-   </property>
   </action>
   <action name="actionTrash">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/trash.svg</normaloff>:/trash.svg</iconset>
    </property>
    <property name="text">
@@ -233,7 +222,7 @@
   </action>
   <action name="actionSetWallpaper">
    <property name="icon">
-    <iconset resource="res.qrc">
+    <iconset>
      <normaloff>:/display.svg</normaloff>:/display.svg</iconset>
    </property>
    <property name="text">
@@ -243,10 +232,16 @@
     <string>设为壁纸</string>
    </property>
   </action>
+  <action name="action_printPreview">
+   <property name="text">
+    <string>打印预览</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="res.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -8,18 +8,37 @@
 #include <QShortcut>
 #include <QDateTime>
 #include <QProcess>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
+#include <QPainter>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->centralWidget->setStyleSheet("background:black;border:none;");
     move((QApplication::desktop()->width() - width())/2, (QApplication::desktop()->height() - height())/2);
     path = "";
     index = -1;
-    zoomType = ZoomFit;    
+    zoomType = ZoomFit;
     dirTrash = QDir::homePath() + "/.local/share/Trash/files";
     dirTrashInfo = QDir::homePath() + "/.local/share/Trash/info/";
+
+    LSB1 = new QLabel("欢迎使用海天鹰看图！");
+    LSB1->setMinimumSize(100,20);
+    LSB1->setStyleSheet("padding:0px 3px;");
+    //LS1->setFrameShape(QFrame::WinPanel);
+    //LS1->setFrameShadow(QFrame::Sunken);
+    LSB2 = new QLabel("1/1");
+    LSB2->setMinimumSize(30,20);
+    LSB2->setStyleSheet("padding:0px 3px;");
+    LSB3 = new QLabel("");
+    LSB3->setMinimumSize(20,20);
+    LSB3->setStyleSheet("padding:0px 3px;");
+    ui->statusBar->addWidget(LSB1);
+    ui->statusBar->addWidget(LSB2);
+    ui->statusBar->addWidget(LSB3);
 
     connect(ui->action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()),this, SLOT(EEFullscreen()));
@@ -27,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()),this, SLOT(exitFullscreen()));
     connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()),this, SLOT(lastImage()));
     connect(new QShortcut(QKeySequence(Qt::Key_Right),this), SIGNAL(activated()),this, SLOT(nextImage()));
+    connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()),this, SLOT(on_actionRotateRight_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()),this, SLOT(on_actionRotateLeft_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_1),this), SIGNAL(activated()),this, SLOT(on_actionZoom1_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
 
     QStringList Largs = QApplication::arguments();
     qDebug() << Largs;
@@ -99,7 +122,7 @@ void MainWindow::enterFullscreen()
     ui->menuBar->hide();
     ui->mainToolBar->hide();
     ui->statusBar->hide();
-    ui->scrollArea->setStyleSheet("background:black; border:none;");
+    //ui->scrollArea->setStyleSheet("background:black; border:none;");
     //setCursor(QCursor(Qt::BlankCursor));
     //PMAFullscreen->setText("退出全屏");
 }
@@ -111,7 +134,7 @@ void MainWindow::exitFullscreen()
     ui->menuBar->show();
     ui->mainToolBar->show();
     ui->statusBar->show();
-    ui->scrollArea->setStyleSheet("");
+    //ui->scrollArea->setStyleSheet("");
     //PMAFullscreen->setText("全屏");
 }
 
@@ -140,7 +163,9 @@ void MainWindow::genList(QString spath)
         //qDebug() << fileInfo.absoluteFilePath() << path;
         if (fileInfo.absoluteFilePath() == path) {
             index = i;
-            qDebug() << i << "/" << fileInfoList.size();
+            //qDebug() << i << "/" << fileInfoList.size();
+            LSB2->setText(QString::number(i+1) + "/" + QString::number(fileInfoList.size()));
+            LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
             break;
         }
     }
@@ -150,8 +175,11 @@ void MainWindow::lastImage()
 {
     int id = index - 1;
     if (id > -1) {
-        loadImage(fileInfoList.at(id).absoluteFilePath());
+        path = fileInfoList.at(id).absoluteFilePath();
+        loadImage(path);
         index = id;
+        LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
+        LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
     }
 }
 
@@ -159,8 +187,11 @@ void MainWindow::nextImage()
 {
     int id = index + 1;
     if (id < fileInfoList.size()) {
-        loadImage(fileInfoList.at(id).absoluteFilePath());
+        path = fileInfoList.at(id).absoluteFilePath();
+        loadImage(path);
         index = id;
+        LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
+        LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
     }
 }
 
@@ -189,7 +220,7 @@ void MainWindow::on_actionRotateRight_triggered()
 void MainWindow::loadImage(QString spath)
 {
     QPixmap pixmap(spath);
-    ui->statusBar->showMessage("分辨率：" + QString::number(pixmap.width()) + " X " +QString::number(pixmap.height()));
+    LSB1->setText("分辨率：" + QString::number(pixmap.width()) + " X " +QString::number(pixmap.height()));
     if(zoomType == ZoomFit){
         pixmap = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
@@ -246,4 +277,52 @@ void MainWindow::on_actionSetWallpaper_triggered()
         QProcess *process = new QProcess;
         process->start(cmd);
     }
+}
+
+void MainWindow::on_action_print_triggered()
+{
+    QPrinter printer(QPrinter::HighResolution);
+    QPrintDialog dialog(&printer, this);
+    if (dialog.exec() == QDialog::Accepted){
+        printDocument(&printer);
+    }
+}
+
+void MainWindow::on_action_printPreview_triggered()
+{
+    QPrinter printer(QPrinter::HighResolution);
+    QPrintPreviewDialog preview(&printer, this);
+    connect(&preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(printDocument(QPrinter*)));
+    preview.exec();
+}
+
+void MainWindow::printDocument(QPrinter *printer)
+{
+    QPainter painter(printer);
+    QRect rect = painter.viewport();
+    QImage img(path);
+    QSize size = img.size();
+    size.scale(rect.size(), Qt::KeepAspectRatio);
+    painter.setViewport(rect.x(), rect.y(), size.width(), size.height());
+    painter.setWindow(img.rect());
+    painter.drawImage(0, 0, img);
+}
+
+QString MainWindow::BS(qint64 b)
+{
+    QString s = "";
+    if (b > 999999999) {
+        s = QString::number(b/(1024*1024*1024.0),'f',2) + " GB";
+    } else {
+        if (b > 999999){
+            s = QString::number(b/(1024*1024.0),'f',2) + " MB";
+        } else {
+            if (b > 999) {
+                s = QString::number(b/1024.0,'f',2) + " KB";
+            } else {
+                s = QString::number(b)+" B";
+            }
+        }
+    }
+    return s;
 }

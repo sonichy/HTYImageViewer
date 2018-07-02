@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 #include <QDragEnterEvent>
 #include <QFileInfoList>
+#include <QPrinter>
 
 namespace Ui {
 class MainWindow;
@@ -24,6 +26,7 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    QLabel *LSB1, *LSB2, *LSB3;
     QString path, dirTrash, dirTrashInfo;
     int index;
     QFileInfoList fileInfoList;
@@ -34,9 +37,12 @@ private:
         ZoomFit
     } zoomType;
     void loadImage(QString spath);
+    QString BS(qint64 b);
 
 private slots:
     void on_action_open_triggered();
+    void on_action_print_triggered();
+    void on_action_printPreview_triggered();
     void on_action_about_triggered();
     void on_actionZoom1_triggered();
     void on_actionZoomFit_triggered();
@@ -50,6 +56,7 @@ private slots:
     void lastImage();
     void nextImage();
     void rotate(qreal degrees);
+    void printDocument(QPrinter *printer);
 
 };
 
