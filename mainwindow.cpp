@@ -11,6 +11,7 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 #include <QPainter>
+#include <QImageReader>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -219,14 +220,14 @@ void MainWindow::on_actionRotateRight_triggered()
 
 void MainWindow::loadImage(QString spath)
 {
-    QPixmap pixmap(spath);
-    LSB1->setText("分辨率：" + QString::number(pixmap.width()) + " X " +QString::number(pixmap.height()));
+    QImageReader reader(spath);
+    reader.setAutoTransform(true);
+    QImage image = reader.read();
+    LSB1->setText("分辨率：" + QString::number(image.width()) + " X " +QString::number(image.height()));
     if(zoomType == ZoomFit){
-        pixmap = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        image = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
-    if(isFullScreen())
-        qDebug() << "zoom" << pixmap.size();
-    ui->label->setPixmap(pixmap);
+    ui->label->setPixmap(QPixmap::fromImage(image));
     setWindowTitle(QFileInfo(spath).fileName());
 }
 
