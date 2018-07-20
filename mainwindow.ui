@@ -175,7 +175,7 @@
     <string>zoom1</string>
    </property>
    <property name="toolTip">
-    <string>原始大小</string>
+    <string>原始大小 1</string>
    </property>
   </action>
   <action name="actionZoomFit">
@@ -187,7 +187,7 @@
     <string>zoomFit</string>
    </property>
    <property name="toolTip">
-    <string>适应窗口</string>
+    <string>适应窗口 3</string>
    </property>
   </action>
   <action name="actionRotateLeft">
@@ -198,6 +198,9 @@
    <property name="text">
     <string>rotateLeft</string>
    </property>
+   <property name="toolTip">
+    <string>左转 L</string>
+   </property>
   </action>
   <action name="actionRotateRight">
    <property name="icon">
@@ -206,6 +209,9 @@
    </property>
    <property name="text">
     <string>rotateRight</string>
+   </property>
+   <property name="toolTip">
+    <string>右转 R</string>
    </property>
   </action>
   <action name="actionTrash">
@@ -217,7 +223,7 @@
     <string>trash</string>
    </property>
    <property name="toolTip">
-    <string>回收</string>
+    <string>回收 Del</string>
    </property>
    <property name="shortcut">
     <string>Del</string>
@@ -252,7 +258,7 @@
     <string>info</string>
    </property>
    <property name="toolTip">
-    <string>信息</string>
+    <string>信息 i</string>
    </property>
   </action>
   <action name="actionZoomBig">
@@ -262,6 +268,9 @@
    </property>
    <property name="text">
     <string>zoomBig</string>
+   </property>
+   <property name="toolTip">
+    <string>zoomBig 2</string>
    </property>
   </action>
   <action name="actionPlay">
@@ -273,7 +282,7 @@
     <string>play</string>
    </property>
    <property name="toolTip">
-    <string>幻灯片</string>
+    <string>幻灯片 F5</string>
    </property>
   </action>
  </widget>
