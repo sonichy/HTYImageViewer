@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <QImageReader>
 #include <QMimeDatabase>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -403,7 +404,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_bPressed = true;
-        m_point = pos()- event->globalPos();
+        m_point = event->globalPos();
         setCursor(Qt::ClosedHandCursor);
     }
 }
@@ -411,8 +412,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_bPressed) {
-        move(event->globalPos() + m_point);
-        qDebug() << "Move" << pos();
+        ui->scrollArea->horizontalScrollBar()->setValue(ui->scrollArea->horizontalScrollBar()->value() - (event->globalPos().x() - m_point.x())/20);
+        ui->scrollArea->verticalScrollBar()->setValue(ui->scrollArea->verticalScrollBar()->value() - (event->globalPos().y() - m_point.y())/20);
     }
 }
 
