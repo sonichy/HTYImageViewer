@@ -7,5 +7,7 @@
         <file>rotateright.svg</file>
         <file>trash.svg</file>
         <file>display.svg</file>
+        <file>info.svg</file>
+        <file>zoombig.svg</file>
     </qresource>
 </RCC>

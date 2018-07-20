@@ -17,7 +17,7 @@
    <string>海天鹰看图</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../HTYEdit/qtrf.qrc">
+   <iconset resource="res.qrc">
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -124,11 +124,13 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionZoom1"/>
+   <addaction name="actionZoomBig"/>
    <addaction name="actionZoomFit"/>
    <addaction name="actionRotateLeft"/>
    <addaction name="actionRotateRight"/>
    <addaction name="actionTrash"/>
    <addaction name="actionSetWallpaper"/>
+   <addaction name="actionInfo"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_open">
@@ -136,7 +138,7 @@
     <string>打开</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>O</string>
    </property>
   </action>
   <action name="action_quit">
@@ -165,7 +167,7 @@
   </action>
   <action name="actionZoom1">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/zoom1.svg</normaloff>:/zoom1.svg</iconset>
    </property>
    <property name="text">
@@ -177,7 +179,7 @@
   </action>
   <action name="actionZoomFit">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/zoomfit.svg</normaloff>:/zoomfit.svg</iconset>
    </property>
    <property name="text">
@@ -189,7 +191,7 @@
   </action>
   <action name="actionRotateLeft">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/rotateleft.svg</normaloff>:/rotateleft.svg</iconset>
    </property>
    <property name="text">
@@ -198,7 +200,7 @@
   </action>
   <action name="actionRotateRight">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/rotateright.svg</normaloff>:/rotateright.svg</iconset>
    </property>
    <property name="text">
@@ -207,7 +209,7 @@
   </action>
   <action name="actionTrash">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/trash.svg</normaloff>:/trash.svg</iconset>
    </property>
    <property name="text">
@@ -222,7 +224,7 @@
   </action>
   <action name="actionSetWallpaper">
    <property name="icon">
-    <iconset>
+    <iconset resource="res.qrc">
      <normaloff>:/display.svg</normaloff>:/display.svg</iconset>
    </property>
    <property name="text">
@@ -240,8 +242,31 @@
     <string>Ctrl+Shift+P</string>
    </property>
   </action>
+  <action name="actionInfo">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/info.svg</normaloff>:/info.svg</iconset>
+   </property>
+   <property name="text">
+    <string>info</string>
+   </property>
+   <property name="toolTip">
+    <string>信息</string>
+   </property>
+  </action>
+  <action name="actionZoomBig">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/zoombig.svg</normaloff>:/zoombig.svg</iconset>
+   </property>
+   <property name="text">
+    <string>zoomBig</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

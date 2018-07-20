@@ -6,6 +6,7 @@
 #include <QDragEnterEvent>
 #include <QFileInfoList>
 #include <QPrinter>
+#include <QMovie>
 
 namespace Ui {
 class MainWindow;
@@ -23,10 +24,14 @@ protected:
     void resizeEvent(QResizeEvent*);
     void dragEnterEvent(QDragEnterEvent*);
     void dropEvent(QDropEvent*);
+    void mouseDoubleClickEvent(QMouseEvent*);
+    void mousePressEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+    void mouseReleaseEvent(QMouseEvent*);
 
 private:
     Ui::MainWindow *ui;
-    QLabel *LSB1, *LSB2, *LSB3;
+    QLabel *LSB1, *LSB2, *LSB3, *label_info;
     QString path, dirTrash, dirTrashInfo;
     int index;
     QFileInfoList fileInfoList;
@@ -34,10 +39,14 @@ private:
     void genList(QString spath);
     enum {
         ZoomOriginal,
-        ZoomFit
+        ZoomFit,
+        ZoomBig
     } zoomType;
     void loadImage(QString spath);
     QString BS(qint64 b);
+    QMovie *movie;
+    bool m_bPressed;
+    QPoint m_point;
 
 private slots:
     void on_action_open_triggered();
@@ -45,11 +54,13 @@ private slots:
     void on_action_printPreview_triggered();
     void on_action_about_triggered();
     void on_actionZoom1_triggered();
+    void on_actionZoomBig_triggered();
     void on_actionZoomFit_triggered();
     void on_actionRotateLeft_triggered();
     void on_actionRotateRight_triggered();
     void on_actionTrash_triggered();
     void on_actionSetWallpaper_triggered();
+    void on_actionInfo_triggered();
     void enterFullscreen();
     void exitFullscreen();
     void EEFullscreen();
@@ -57,6 +68,7 @@ private slots:
     void nextImage();
     void rotate(qreal degrees);
     void printDocument(QPrinter *printer);
+    void frameChange(int fn);
 
 };
 

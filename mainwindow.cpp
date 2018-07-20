@@ -12,6 +12,7 @@
 #include <QPrintPreviewDialog>
 #include <QPainter>
 #include <QImageReader>
+#include <QMimeDatabase>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,9 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
     move((QApplication::desktop()->width() - width())/2, (QApplication::desktop()->height() - height())/2);
     path = "";
     index = -1;
-    zoomType = ZoomFit;
+    zoomType = ZoomBig;
     dirTrash = QDir::homePath() + "/.local/share/Trash/files";
     dirTrashInfo = QDir::homePath() + "/.local/share/Trash/info/";
+    m_bPressed = false;
 
     LSB1 = new QLabel("欢迎使用海天鹰看图！");
     LSB1->setMinimumSize(100,20);
@@ -41,6 +43,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->addWidget(LSB2);
     ui->statusBar->addWidget(LSB3);
 
+    label_info = new QLabel(this);
+    label_info->move(0, ui->menuBar->height() + ui->mainToolBar->height());
+    label_info->setStyleSheet("color:rgb(255,255,255); background:rgba(255,255,255,30);");
+    //label_info->setAttribute(Qt::WA_TranslucentBackground,true);
+    //label_info->setAutoFillBackground(true);
+    label_info->hide();
+
+    movie = new QMovie;
+    connect(movie,SIGNAL(frameChanged(int)),this,SLOT(frameChange(int)));
+
     connect(ui->action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()),this, SLOT(EEFullscreen()));
     connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()),this, SLOT(EEFullscreen()));
@@ -50,7 +62,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()),this, SLOT(on_actionRotateRight_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()),this, SLOT(on_actionRotateLeft_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_1),this), SIGNAL(activated()),this, SLOT(on_actionZoom1_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()),this, SLOT(on_actionZoomBig_triggered()));
+     connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()),this, SLOT(on_actionInfo_triggered()));
 
     QStringList Largs = QApplication::arguments();
     qDebug() << Largs;
@@ -68,9 +82,9 @@ MainWindow::~MainWindow()
 void MainWindow::on_action_open_triggered()
 {
     if (path=="") {
-        path = QFileDialog::getOpenFileName(this,"打开图片", ".", "图片文件(*.jpg *.jpeg *.png *.bmp)");
+        path = QFileDialog::getOpenFileName(this,"打开图片", ".", "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
     } else {
-        path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp)");
+        path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
     }
     if (path.length() != 0) {
         open(path);
@@ -202,6 +216,12 @@ void MainWindow::on_actionZoom1_triggered()
     loadImage(fileInfoList.at(index).absoluteFilePath());
 }
 
+void MainWindow::on_actionZoomBig_triggered()
+{
+    zoomType = ZoomBig;
+    loadImage(fileInfoList.at(index).absoluteFilePath());
+}
+
 void MainWindow::on_actionZoomFit_triggered()
 {
     zoomType = ZoomFit;
@@ -220,22 +240,45 @@ void MainWindow::on_actionRotateRight_triggered()
 
 void MainWindow::loadImage(QString spath)
 {
-    QImageReader reader(spath);
-    reader.setAutoTransform(true);
-    QImage image = reader.read();
-    LSB1->setText("分辨率：" + QString::number(image.width()) + " X " +QString::number(image.height()));
-    if(zoomType == ZoomFit){
-        image = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    }
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    movie->stop();
     setWindowTitle(QFileInfo(spath).fileName());
+    QString MIME = QMimeDatabase().mimeTypeForFile(spath).name();
+    if(MIME == "image/gif"){
+        movie->setFileName(spath);
+        //ui->label->clear();
+        //ui->label->setMovie(movie);
+        movie->start();
+    }else{
+        QImageReader reader(spath);
+        reader.setAutoTransform(true);
+        QImage image = reader.read();
+        QImage image_zoom = image;
+        if(zoomType == ZoomFit){
+            image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        }else if(zoomType == ZoomBig){
+            if(image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height())
+                image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        }
+        ui->label->setPixmap(QPixmap::fromImage(image_zoom));
+        LSB1->setText("分辨率：" + QString::number(image.width()) + " X " +QString::number(image.height()) + " " + QString::number(image_zoom.width()*100/image.width()) + "%");
+
+        qDebug() << reader.textKeys();
+        QStringList SL = reader.textKeys();
+        QString s = "";
+        for(int i=0; i<SL.size(); i++){
+            s += SL.at(i) + "\t" + reader.text(SL.at(i)) + "\n";
+        }
+        //qDebug() << s;
+        label_info->setText(s);
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    if(index != -1)
-        loadImage(fileInfoList.at(index).absoluteFilePath());
+    if(index != -1) loadImage(fileInfoList.at(index).absoluteFilePath());
+    label_info->resize(200, centralWidget()->height());
+    //qDebug() << "label_info: " << label_info->x() << label_info->y() << label_info->size();
 }
 
 void MainWindow::rotate(qreal degrees)
@@ -326,4 +369,56 @@ QString MainWindow::BS(qint64 b)
         }
     }
     return s;
+}
+
+void MainWindow::on_actionInfo_triggered()
+{
+    qDebug() << label_info->isHidden();
+    if(label_info->isHidden()){
+        label_info->show();
+        label_info->raise();
+    }else{
+        label_info->hide();
+    }
+}
+
+void MainWindow::frameChange(int fn)
+{
+    QPixmap pixmap = movie->currentPixmap();
+    QPixmap pixmap_zoom = pixmap;
+    if(zoomType == ZoomFit){
+        pixmap_zoom = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    ui->label->setPixmap(pixmap_zoom);
+    LSB1->setText("分辨率：" + QString::number(pixmap.width()) + " X " + QString::number(pixmap.height()) + "  帧：" + QString::number(fn) + "/" + QString::number(movie->frameCount()-1) + " "+ QString::number(pixmap_zoom.width()*100/pixmap.width()) + "%");
+}
+
+void MainWindow::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    EEFullscreen();
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        m_bPressed = true;
+        m_point = pos()- event->globalPos();
+        setCursor(Qt::ClosedHandCursor);
+    }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_bPressed) {
+        move(event->globalPos() + m_point);
+        qDebug() << "Move" << pos();
+    }
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    m_bPressed = false;
+    setCursor(Qt::ArrowCursor);
 }
