@@ -7,6 +7,7 @@
 #include <QFileInfoList>
 #include <QPrinter>
 #include <QMovie>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -47,6 +48,8 @@ private:
     QMovie *movie;
     bool m_bPressed;
     QPoint m_point;
+    QTimer *timer;
+    void enterFullScreen();
 
 private slots:
     void on_action_open_triggered();
@@ -56,19 +59,21 @@ private slots:
     void on_actionZoom1_triggered();
     void on_actionZoomBig_triggered();
     void on_actionZoomFit_triggered();
+    void on_actionPlay_triggered();
     void on_actionRotateLeft_triggered();
     void on_actionRotateRight_triggered();
     void on_actionTrash_triggered();
     void on_actionSetWallpaper_triggered();
     void on_actionInfo_triggered();
-    void enterFullscreen();
-    void exitFullscreen();
-    void EEFullscreen();
+    void EEFullScreen();
     void lastImage();
     void nextImage();
     void rotate(qreal degrees);
     void printDocument(QPrinter *printer);
     void frameChange(int fn);
+    void exitFullScreen();
+    void autoPlay();
+    void playPause();
 
 };
 

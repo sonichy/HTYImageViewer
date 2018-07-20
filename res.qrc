@@ -9,5 +9,6 @@
         <file>display.svg</file>
         <file>info.svg</file>
         <file>zoombig.svg</file>
+        <file>play.svg</file>
     </qresource>
 </RCC>

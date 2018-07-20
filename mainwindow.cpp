@@ -54,18 +54,24 @@ MainWindow::MainWindow(QWidget *parent) :
     movie = new QMovie;
     connect(movie,SIGNAL(frameChanged(int)),this,SLOT(frameChange(int)));
 
+    timer = new QTimer(this);
+    timer->setInterval(2000);
+    connect(timer, SIGNAL(timeout()), this, SLOT(autoPlay()));
+
     connect(ui->action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()),this, SLOT(EEFullscreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()),this, SLOT(EEFullscreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()),this, SLOT(exitFullscreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()),this, SLOT(EEFullScreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()),this, SLOT(EEFullScreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()),this, SLOT(exitFullScreen()));
     connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()),this, SLOT(lastImage()));
     connect(new QShortcut(QKeySequence(Qt::Key_Right),this), SIGNAL(activated()),this, SLOT(nextImage()));
     connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()),this, SLOT(on_actionRotateRight_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()),this, SLOT(on_actionRotateLeft_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_1),this), SIGNAL(activated()),this, SLOT(on_actionZoom1_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()),this, SLOT(on_actionZoomBig_triggered()));
-     connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()),this, SLOT(on_actionInfo_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()),this, SLOT(on_actionPlay_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()),this, SLOT(playPause()));
 
     QStringList Largs = QApplication::arguments();
     qDebug() << Largs;
@@ -132,34 +138,33 @@ void MainWindow::dropEvent(QDropEvent *e)
     setFocus();
 }
 
-void MainWindow::enterFullscreen()
+void MainWindow::enterFullScreen()
 {
     showFullScreen();
     ui->menuBar->hide();
     ui->mainToolBar->hide();
     ui->statusBar->hide();
-    //ui->scrollArea->setStyleSheet("background:black; border:none;");
     //setCursor(QCursor(Qt::BlankCursor));
     //PMAFullscreen->setText("退出全屏");
 }
 
-void MainWindow::exitFullscreen()
+void MainWindow::exitFullScreen()
 {
     showNormal();
     //setCursor(QCursor(Qt::ArrowCursor));
     ui->menuBar->show();
     ui->mainToolBar->show();
     ui->statusBar->show();
-    //ui->scrollArea->setStyleSheet("");
     //PMAFullscreen->setText("全屏");
+    timer->stop();
 }
 
-void MainWindow::EEFullscreen()
+void MainWindow::EEFullScreen()
 {
     if (isFullScreen()) {
-        exitFullscreen();
+        exitFullScreen();
     } else {
-        enterFullscreen();
+        enterFullScreen();
     }
 }
 
@@ -397,7 +402,7 @@ void MainWindow::frameChange(int fn)
 void MainWindow::mouseDoubleClickEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
-    EEFullscreen();
+    EEFullScreen();
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -422,4 +427,26 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     Q_UNUSED(event);
     m_bPressed = false;
     setCursor(Qt::ArrowCursor);
+}
+
+void MainWindow::on_actionPlay_triggered()
+{
+    enterFullScreen();
+    timer->start();
+}
+
+void MainWindow::autoPlay()
+{
+    if(index > fileInfoList.size()-1)
+        index = 0;
+    nextImage();
+}
+
+void MainWindow::playPause()
+{
+    if(timer->isActive()){
+        timer->stop();
+    }else{
+        timer->start();
+    }
 }
