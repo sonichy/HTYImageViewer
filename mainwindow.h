@@ -50,11 +50,13 @@ private:
     QPoint m_point;
     QTimer *timer;
     void enterFullScreen();
+    enum Qt::WindowState windowState;
 
 private slots:
     void on_action_open_triggered();
     void on_action_print_triggered();
     void on_action_printPreview_triggered();
+    void on_action_rename_triggered();
     void on_action_about_triggered();
     void on_actionZoom1_triggered();
     void on_actionZoomBig_triggered();
@@ -74,6 +76,7 @@ private slots:
     void exitFullScreen();
     void autoPlay();
     void playPause();
+
 
 };
 

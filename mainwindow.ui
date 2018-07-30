@@ -110,7 +110,14 @@
     </property>
     <addaction name="action_about"/>
    </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>编辑</string>
+    </property>
+    <addaction name="action_rename"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_3"/>
    <addaction name="menu_2"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -225,9 +232,6 @@
    <property name="toolTip">
     <string>回收 Del</string>
    </property>
-   <property name="shortcut">
-    <string>Del</string>
-   </property>
   </action>
   <action name="actionSetWallpaper">
    <property name="icon">
@@ -283,6 +287,11 @@
    </property>
    <property name="toolTip">
     <string>幻灯片 F5</string>
+   </property>
+  </action>
+  <action name="action_rename">
+   <property name="text">
+    <string>重命名</string>
    </property>
   </action>
  </widget>

@@ -14,6 +14,8 @@
 #include <QImageReader>
 #include <QMimeDatabase>
 #include <QScrollBar>
+#include <QLineEdit>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -71,7 +73,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()),this, SLOT(on_actionInfo_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()),this, SLOT(on_actionPlay_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Delete),this), SIGNAL(activated()),this, SLOT(on_actionTrash_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()),this, SLOT(playPause()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()),this, SLOT(on_action_rename_triggered()));
 
     QStringList Largs = QApplication::arguments();
     qDebug() << Largs;
@@ -140,6 +144,7 @@ void MainWindow::dropEvent(QDropEvent *e)
 
 void MainWindow::enterFullScreen()
 {
+    //windowState = windowState();
     showFullScreen();
     ui->menuBar->hide();
     ui->mainToolBar->hide();
@@ -449,4 +454,34 @@ void MainWindow::playPause()
     }else{
         timer->start();
     }
+}
+
+void MainWindow::on_action_rename_triggered()
+{
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("重命名");
+    QVBoxLayout *vbox = new QVBoxLayout;
+    QLineEdit *lineEdit = new QLineEdit;
+    lineEdit->setText(QFileInfo(path).baseName());
+    lineEdit->setCursorPosition(0);
+    vbox->addWidget(lineEdit);
+    QHBoxLayout *hbox = new QHBoxLayout;
+    QPushButton *pushButtonConfirm = new QPushButton("确定");
+    QPushButton *pushButtonCancel = new QPushButton("取消");
+    hbox->addWidget(pushButtonConfirm);
+    hbox->addWidget(pushButtonCancel);
+    vbox->addLayout(hbox);
+    dialog->setLayout(vbox);
+    connect(pushButtonConfirm, SIGNAL(clicked()), dialog, SLOT(accept()));
+    connect(pushButtonCancel, SIGNAL(clicked()), dialog, SLOT(reject()));
+    if(dialog->exec() == QDialog::Accepted){
+        setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
+        QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "."+ QFileInfo(path).suffix();
+        qDebug() << "rename" << path << newName;
+        if (!QFile::rename(path, newName)) {
+            QMessageBox::critical(NULL, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
+        }
+    }
+    dialog->close();
+    genList(QFileInfo(path).absolutePath());
 }
