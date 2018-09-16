@@ -274,7 +274,7 @@
     <string>zoomBig</string>
    </property>
    <property name="toolTip">
-    <string>zoomBig 2</string>
+    <string>缩小大图 2</string>
    </property>
   </action>
   <action name="actionPlay">

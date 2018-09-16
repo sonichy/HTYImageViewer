@@ -35,6 +35,7 @@ private:
     QLabel *LSB1, *LSB2, *LSB3, *label_info;
     QString path, dirTrash, dirTrashInfo;
     int index;
+    float scale;
     QFileInfoList fileInfoList;
     void open(QString filepath);
     void genList(QString spath);
@@ -76,7 +77,8 @@ private slots:
     void exitFullScreen();
     void autoPlay();
     void playPause();
-
+    void zoomIn();
+    void zoomOut();
 
 };
 
