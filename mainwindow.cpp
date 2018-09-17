@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->action_open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    ui->action_quit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    ui->action_about->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
     ui->centralWidget->setStyleSheet("background:black;border:none;");
     move((QApplication::desktop()->width() - width())/2, (QApplication::desktop()->height() - height())/2);
     path = "";
@@ -43,9 +46,13 @@ MainWindow::MainWindow(QWidget *parent) :
     LSB3 = new QLabel("");
     LSB3->setMinimumSize(20,20);
     LSB3->setStyleSheet("padding:0px 3px;");
+    LSB4 = new QLabel("100%");
+    LSB4->setMinimumSize(20,20);
+    LSB4->setStyleSheet("padding:0px 3px;");
     ui->statusBar->addWidget(LSB1);
     ui->statusBar->addWidget(LSB2);
     ui->statusBar->addWidget(LSB3);
+    ui->statusBar->addWidget(LSB4);
 
     label_info = new QLabel(this);
     label_info->move(0, ui->menuBar->height() + ui->mainToolBar->height());
@@ -202,7 +209,7 @@ void MainWindow::genList(QString spath)
 
 void MainWindow::lastImage()
 {
-    if(zoomType != ZoomOriginal){
+    if (ui->scrollArea->horizontalScrollBar()->visibleRegion().isEmpty()) { // 横向滚动条没有显示
         int id = index - 1;
         if (id > -1) {
             path = fileInfoList.at(id).absoluteFilePath();
@@ -212,14 +219,14 @@ void MainWindow::lastImage()
             LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
             LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
         }
-    }else{
+    } else {
         ui->scrollArea->horizontalScrollBar()->setValue(ui->scrollArea->horizontalScrollBar()->value() - 20);
     }
 }
 
 void MainWindow::nextImage()
 {
-    if(zoomType != ZoomOriginal){
+    if (ui->scrollArea->horizontalScrollBar()->visibleRegion().isEmpty()) {
         int id = index + 1;
         if (id < fileInfoList.size()) {
             path = fileInfoList.at(id).absoluteFilePath();
@@ -229,37 +236,45 @@ void MainWindow::nextImage()
             LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
             LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
         }
-    }else{
+    } else {
         ui->scrollArea->horizontalScrollBar()->setValue(ui->scrollArea->horizontalScrollBar()->value() + 20);
     }
 }
 
 void MainWindow::on_actionZoom1_triggered()
 {
-    zoomType = ZoomOriginal;
-    loadImage(fileInfoList.at(index).absoluteFilePath());
+    if(ui->label->pixmap() != 0){
+        zoomType = ZoomOriginal;
+        loadImage(fileInfoList.at(index).absoluteFilePath());
+    }
 }
 
 void MainWindow::on_actionZoomBig_triggered()
 {
-    zoomType = ZoomBig;
-    loadImage(fileInfoList.at(index).absoluteFilePath());
+    if(ui->label->pixmap() != 0){
+        zoomType = ZoomBig;
+        loadImage(fileInfoList.at(index).absoluteFilePath());
+    }
 }
 
 void MainWindow::on_actionZoomFit_triggered()
 {
-    zoomType = ZoomFit;
-    loadImage(fileInfoList.at(index).absoluteFilePath());
+    if(ui->label->pixmap() != 0){
+        zoomType = ZoomFit;
+        loadImage(fileInfoList.at(index).absoluteFilePath());
+    }
 }
 
 void MainWindow::on_actionRotateLeft_triggered()
 {
-    rotate(-90);
+    if(ui->label->pixmap() != 0)
+        rotate(-90);
 }
 
 void MainWindow::on_actionRotateRight_triggered()
 {
-    rotate(90);
+    if(ui->label->pixmap() != 0)
+        rotate(90);
 }
 
 void MainWindow::loadImage(QString spath)
@@ -272,20 +287,27 @@ void MainWindow::loadImage(QString spath)
         movie->start();
     }else{
         QImageReader reader(spath);
-        reader.setAutoTransform(true);
+        reader.setAutoTransform(true);  // auto rotate image
         QImage image = reader.read();
         QImage image_zoom = image;
         if(zoomType == ZoomFit){
             image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            scale = ui->centralWidget->width()/image.width();
         }else if(zoomType == ZoomBig){
-            if(image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height())
+            if(image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height()){
                 image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                scale = ui->centralWidget->width()/image.width();
+            }
+        }else if(zoomType == ZoomOriginal){
+            scale = 1;
+        }else if(zoomType == ZoomManual){
+            image_zoom = image.scaled(image.size() * scale, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         }
-        image_zoom = image_zoom.scaled(image_zoom.size()*scale, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         ui->label->setPixmap(QPixmap::fromImage(image_zoom));
-        LSB1->setText("分辨率：" + QString::number(image.width()) + " X " + QString::number(image.height()) + " " + QString::number(image_zoom.width()*100/image.width()) + "%");
+        LSB1->setText("分辨率：" + QString::number(image.width()) + " X " + QString::number(image.height()));
+        LSB4->setText(QString::number(image_zoom.width()*100/image.width()) + "%");
 
-        qDebug() << reader.textKeys();
+        //qDebug() << reader.textKeys();
         QStringList SL = reader.textKeys();
         QString s = "";
         for(int i=0; i<SL.size(); i++){
@@ -314,39 +336,47 @@ void MainWindow::rotate(qreal degrees)
 
 void MainWindow::on_actionTrash_triggered()
 {
-    if(!QDir(dirTrash).exists()) QDir().mkpath(dirTrash);
-    if(!QDir(dirTrashInfo).exists()) QDir().mkpath(dirTrashInfo);
-    QString filepath = fileInfoList.at(index).absoluteFilePath();
-    QString newName = dirTrash + "/" + QFileInfo(filepath).fileName();
-    if (QFile::copy(filepath, newName)) {
-        QString pathinfo = dirTrashInfo + "/" + QFileInfo(filepath).fileName() + ".trashinfo";
-        QFile file(pathinfo);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            QDateTime time = QDateTime::currentDateTime();
-            stream << "[Trash Info]\nPath=" + filepath + "\nDeletionDate=" + time.toString("yyyy-MM-ddThh:mm:ss");
-            file.close();
-        }
-        if (QFile::remove(filepath)) {
-            genList(QFileInfo(filepath).absolutePath());
-            qDebug() << index << fileInfoList.size();
-            if (index >= fileInfoList.size()) index--;
-            loadImage(fileInfoList.at(index).absoluteFilePath());
+    if(ui->label->pixmap() !=0){
+#ifdef Q_OS_LINUX
+        if(!QDir(dirTrash).exists()) QDir().mkpath(dirTrash);
+        if(!QDir(dirTrashInfo).exists()) QDir().mkpath(dirTrashInfo);
+        QString filepath = fileInfoList.at(index).absoluteFilePath();
+        QString newName = dirTrash + "/" + QFileInfo(filepath).fileName();
+        if (QFile::copy(filepath, newName)) {
+            QString pathinfo = dirTrashInfo + "/" + QFileInfo(filepath).fileName() + ".trashinfo";
+            QFile file(pathinfo);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream stream(&file);
+                QDateTime time = QDateTime::currentDateTime();
+                stream << "[Trash Info]\nPath=" + filepath + "\nDeletionDate=" + time.toString("yyyy-MM-ddThh:mm:ss");
+                file.close();
+            }
+            if (QFile::remove(filepath)) {
+                genList(QFileInfo(filepath).absolutePath());
+                qDebug() << index << fileInfoList.size();
+                if (index >= fileInfoList.size()) index--;
+                loadImage(fileInfoList.at(index).absoluteFilePath());
+            } else {
+                QMessageBox::critical(NULL, "错误", "无法删除文件 " + filepath);
+            }
         } else {
-            QMessageBox::critical(NULL, "错误", "无法删除文件 " + filepath);
+            QMessageBox::critical(NULL, "错误", "无法移动 " + filepath + " 到回收站");
         }
-    } else {
-        QMessageBox::critical(NULL, "错误", "无法移动 " + filepath + " 到回收站");
+#endif
     }
 }
 
 void MainWindow::on_actionSetWallpaper_triggered()
 {
-    if(index != -1){
-        QString cmd = "gsettings set org.gnome.desktop.background picture-uri file://" + fileInfoList.at(index).absoluteFilePath();
-        qDebug() << cmd;
-        QProcess *process = new QProcess;
-        process->start(cmd);
+    if(ui->label->pixmap() !=0){
+        if(index != -1){
+#ifdef Q_OS_LINUX
+            QString cmd = "gsettings set org.gnome.desktop.background picture-uri file://" + fileInfoList.at(index).absoluteFilePath();
+            qDebug() << cmd;
+            QProcess *process = new QProcess;
+            process->start(cmd);
+#endif
+        }
     }
 }
 
@@ -417,7 +447,8 @@ void MainWindow::frameChange(int fn)
         pixmap_zoom = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     ui->label->setPixmap(pixmap_zoom);
-    LSB1->setText("分辨率：" + QString::number(pixmap.width()) + " X " + QString::number(pixmap.height()) + "  帧：" + QString::number(fn) + "/" + QString::number(movie->frameCount()-1) + " "+ QString::number(pixmap_zoom.width()*100/pixmap.width()) + "%");
+    LSB1->setText("分辨率：" + QString::number(pixmap.width()) + " X " + QString::number(pixmap.height()) + "  帧：" + QString::number(fn) + "/" + QString::number(movie->frameCount()-1));
+    LSB4->setText(QString::number(pixmap_zoom.width()*100/pixmap.width()) + "%");
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent* event)
@@ -474,43 +505,47 @@ void MainWindow::playPause()
 
 void MainWindow::on_action_rename_triggered()
 {
-    QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("重命名");
-    QVBoxLayout *vbox = new QVBoxLayout;
-    QLineEdit *lineEdit = new QLineEdit;
-    lineEdit->setText(QFileInfo(path).baseName());
-    lineEdit->setCursorPosition(0);
-    vbox->addWidget(lineEdit);
-    QHBoxLayout *hbox = new QHBoxLayout;
-    QPushButton *pushButtonConfirm = new QPushButton("确定");
-    QPushButton *pushButtonCancel = new QPushButton("取消");
-    hbox->addWidget(pushButtonConfirm);
-    hbox->addWidget(pushButtonCancel);
-    vbox->addLayout(hbox);
-    dialog->setLayout(vbox);
-    connect(pushButtonConfirm, SIGNAL(clicked()), dialog, SLOT(accept()));
-    connect(pushButtonCancel, SIGNAL(clicked()), dialog, SLOT(reject()));
-    if(dialog->exec() == QDialog::Accepted){
-        setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
-        QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "."+ QFileInfo(path).suffix();
-        qDebug() << "rename" << path << newName;
-        if (!QFile::rename(path, newName)) {
-            QMessageBox::critical(NULL, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
+    if(ui->label->pixmap() !=0){
+        QDialog *dialog = new QDialog(this);
+        dialog->setWindowTitle("重命名");
+        QVBoxLayout *vbox = new QVBoxLayout;
+        QLineEdit *lineEdit = new QLineEdit;
+        lineEdit->setText(QFileInfo(path).baseName());
+        lineEdit->setCursorPosition(0);
+        vbox->addWidget(lineEdit);
+        QHBoxLayout *hbox = new QHBoxLayout;
+        QPushButton *pushButtonConfirm = new QPushButton("确定");
+        QPushButton *pushButtonCancel = new QPushButton("取消");
+        hbox->addWidget(pushButtonConfirm);
+        hbox->addWidget(pushButtonCancel);
+        vbox->addLayout(hbox);
+        dialog->setLayout(vbox);
+        connect(pushButtonConfirm, SIGNAL(clicked()), dialog, SLOT(accept()));
+        connect(pushButtonCancel, SIGNAL(clicked()), dialog, SLOT(reject()));
+        if(dialog->exec() == QDialog::Accepted){
+            setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
+            QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "."+ QFileInfo(path).suffix();
+            qDebug() << "rename" << path << newName;
+            if (!QFile::rename(path, newName)) {
+                QMessageBox::critical(NULL, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
+            }
         }
+        dialog->close();
+        genList(QFileInfo(path).absolutePath());
     }
-    dialog->close();
-    genList(QFileInfo(path).absolutePath());
 }
 
 void MainWindow::zoomIn()
 {
+    zoomType = ZoomManual;
     scale += 0.1;
     loadImage(path);
 }
 
 void MainWindow::zoomOut()
 {
-    if(scale>0.1){
+    if(scale > 0.1){
+        zoomType = ZoomManual;
         scale -= 0.1;
         loadImage(path);
     }

@@ -32,7 +32,7 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    QLabel *LSB1, *LSB2, *LSB3, *label_info;
+    QLabel *LSB1, *LSB2, *LSB3, *LSB4, *label_info;
     QString path, dirTrash, dirTrashInfo;
     int index;
     float scale;
@@ -42,7 +42,8 @@ private:
     enum {
         ZoomOriginal,
         ZoomFit,
-        ZoomBig
+        ZoomBig,
+        ZoomManual
     } zoomType;
     void loadImage(QString spath);
     QString BS(qint64 b);
