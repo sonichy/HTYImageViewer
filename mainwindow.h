@@ -29,6 +29,7 @@ protected:
     void mousePressEvent(QMouseEvent*);
     void mouseMoveEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
+    void wheelEvent(QWheelEvent *e);
 
 private:
     Ui::MainWindow *ui;

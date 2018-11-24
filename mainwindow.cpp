@@ -102,11 +102,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_open_triggered()
 {
-    if (path=="") {
-        path = QFileDialog::getOpenFileName(this,"打开图片", ".", "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
-    } else {
-        path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
-    }
+    if (path=="") path = ".";
+    path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
     if (path.length() != 0) {
         open(path);
     }
@@ -526,7 +523,10 @@ void MainWindow::on_action_rename_triggered()
             setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
             QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "."+ QFileInfo(path).suffix();
             qDebug() << "rename" << path << newName;
-            if (!QFile::rename(path, newName)) {
+            if (QFile::rename(path, newName)) {
+                path = newName;
+                setWindowTitle(QFileInfo(path).fileName());
+            }else{
                 QMessageBox::critical(NULL, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
             }
         }
@@ -548,5 +548,14 @@ void MainWindow::zoomOut()
         zoomType = ZoomManual;
         scale -= 0.1;
         loadImage(path);
+    }
+}
+
+void MainWindow::wheelEvent(QWheelEvent *e)
+{
+    if(e->delta() > 0){
+        zoomIn();
+    }else{
+        zoomOut();
     }
 }
