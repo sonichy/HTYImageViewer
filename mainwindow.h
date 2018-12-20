@@ -30,6 +30,7 @@ protected:
     void mouseMoveEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
     void wheelEvent(QWheelEvent *e);
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -53,7 +54,7 @@ private:
     QPoint m_point;
     QTimer *timer;
     void enterFullScreen();
-    enum Qt::WindowState windowState;
+    void readSettings();
 
 private slots:
     void on_action_open_triggered();

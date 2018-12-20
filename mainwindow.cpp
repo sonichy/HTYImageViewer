@@ -16,15 +16,16 @@
 #include <QScrollBar>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->action_open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-    ui->action_quit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-    ui->action_about->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
+    //ui->action_open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    //ui->action_quit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    //ui->action_about->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
     ui->centralWidget->setStyleSheet("background:black;border:none;");
     move((QApplication::desktop()->width() - width())/2, (QApplication::desktop()->height() - height())/2);
     path = "";
@@ -93,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent) :
         QUrl url(SLargs.at(1));
         open(url.toLocalFile());
     }
+
+    readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -558,4 +561,19 @@ void MainWindow::wheelEvent(QWheelEvent *e)
     }else{
         zoomOut();
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("HTY", "ImageViewer");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings("HTY", "ImageViewer");
+    qDebug() << "geometry" << restoreGeometry(settings.value("geometry").toByteArray());
+    qDebug() << "windowState" << restoreState(settings.value("windowState").toByteArray());
 }

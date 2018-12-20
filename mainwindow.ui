@@ -51,7 +51,7 @@
          <x>0</x>
          <y>0</y>
          <width>798</width>
-         <height>511</height>
+         <height>513</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -92,7 +92,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -142,6 +142,9 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_open">
+   <property name="icon">
+    <iconset theme="document-open"/>
+   </property>
    <property name="text">
     <string>打开</string>
    </property>
@@ -150,6 +153,9 @@
    </property>
   </action>
   <action name="action_quit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>退出</string>
    </property>
@@ -158,6 +164,9 @@
    </property>
   </action>
   <action name="action_print">
+   <property name="icon">
+    <iconset theme="document-print"/>
+   </property>
    <property name="text">
     <string>打印</string>
    </property>
@@ -166,6 +175,9 @@
    </property>
   </action>
   <action name="action_about">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>关于</string>
    </property>
@@ -246,6 +258,9 @@
    </property>
   </action>
   <action name="action_printPreview">
+   <property name="icon">
+    <iconset theme="document-print-preview"/>
+   </property>
    <property name="text">
     <string>打印预览</string>
    </property>
