@@ -143,7 +143,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_open">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>打开</string>
@@ -154,7 +155,8 @@
   </action>
   <action name="action_quit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>退出</string>
@@ -165,7 +167,8 @@
   </action>
   <action name="action_print">
    <property name="icon">
-    <iconset theme="document-print"/>
+    <iconset theme="document-print">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>打印</string>
@@ -176,7 +179,8 @@
   </action>
   <action name="action_about">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>关于</string>
@@ -187,8 +191,7 @@
   </action>
   <action name="actionZoom1">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/zoom1.svg</normaloff>:/zoom1.svg</iconset>
+    <iconset theme="zoom-original"/>
    </property>
    <property name="text">
     <string>zoom1</string>
@@ -199,8 +202,7 @@
   </action>
   <action name="actionZoomFit">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/zoomfit.svg</normaloff>:/zoomfit.svg</iconset>
+    <iconset theme="zoom-fit-best"/>
    </property>
    <property name="text">
     <string>zoomFit</string>
@@ -211,8 +213,7 @@
   </action>
   <action name="actionRotateLeft">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/rotateleft.svg</normaloff>:/rotateleft.svg</iconset>
+    <iconset theme="object-rotate-left"/>
    </property>
    <property name="text">
     <string>rotateLeft</string>
@@ -223,8 +224,7 @@
   </action>
   <action name="actionRotateRight">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/rotateright.svg</normaloff>:/rotateright.svg</iconset>
+    <iconset theme="object-rotate-right"/>
    </property>
    <property name="text">
     <string>rotateRight</string>
@@ -235,8 +235,7 @@
   </action>
   <action name="actionTrash">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/trash.svg</normaloff>:/trash.svg</iconset>
+    <iconset theme="user-trash"/>
    </property>
    <property name="text">
     <string>trash</string>
@@ -247,8 +246,7 @@
   </action>
   <action name="actionSetWallpaper">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/display.svg</normaloff>:/display.svg</iconset>
+    <iconset theme="video-display"/>
    </property>
    <property name="text">
     <string>setWallpaper</string>
@@ -259,7 +257,8 @@
   </action>
   <action name="action_printPreview">
    <property name="icon">
-    <iconset theme="document-print-preview"/>
+    <iconset theme="document-print-preview">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>打印预览</string>
@@ -270,8 +269,7 @@
   </action>
   <action name="actionInfo">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/info.svg</normaloff>:/info.svg</iconset>
+    <iconset theme="dialog-information"/>
    </property>
    <property name="text">
     <string>info</string>
@@ -294,8 +292,7 @@
   </action>
   <action name="actionPlay">
    <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/play.svg</normaloff>:/play.svg</iconset>
+    <iconset theme="media-playback-start"/>
    </property>
    <property name="text">
     <string>play</string>
