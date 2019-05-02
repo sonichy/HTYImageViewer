@@ -118,7 +118,7 @@ void MainWindow::open(QString spath)
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.0\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
+    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.1\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
     aboutMB.setIconPixmap(QPixmap(":/icon.png"));
     aboutMB.exec();
 }
@@ -287,18 +287,35 @@ void MainWindow::loadImage(QString spath)
         reader.setAutoTransform(true);  // auto rotate image
         QImage image = reader.read();
         QImage image_zoom = image;
+
+        QPainter painter(&image_zoom);
+        //生成棋盘背景
+        int dx = 50;
+        int dy = 50;
+        QBrush brush1(QColor(200,200,200));
+        QBrush brush2(QColor(255,255,255));
+        for(int y=0; y<image_zoom.height(); y+=dy){
+            for(int x=0; x<image_zoom.width(); x+=dx){
+                painter.fillRect(x, y, dx/2, dy/2, brush1);
+                painter.fillRect(x + dx/2, y, dx/2, dy/2, brush2);
+                painter.fillRect(x, y + dy/2, dx/2, dy/2, brush2);
+                painter.fillRect(x + dx/2, y + dy/2, dx/2, dy/2, brush1);
+            }
+        }
+        painter.drawImage(0,0,image);
+
         if(zoomType == ZoomFit){
-            image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            image_zoom = image_zoom.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
             scale = ui->centralWidget->width()/image.width();
         }else if(zoomType == ZoomBig){
             if(image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height()){
-                image_zoom = image.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                image_zoom = image_zoom.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 scale = ui->centralWidget->width()/image.width();
             }
         }else if(zoomType == ZoomOriginal){
             scale = 1;
         }else if(zoomType == ZoomManual){
-            image_zoom = image.scaled(image.size() * scale, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            image_zoom = image_zoom.scaled(image.size() * scale, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         }
         ui->label->setPixmap(QPixmap::fromImage(image_zoom));
         LSB1->setText("分辨率：" + QString::number(image.width()) + " X " + QString::number(image.height()));
@@ -571,6 +588,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::readSettings()
 {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-    qDebug() << "geometry" << restoreGeometry(settings.value("geometry").toByteArray());
-    qDebug() << "windowState" << restoreState(settings.value("windowState").toByteArray());
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
