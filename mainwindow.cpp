@@ -159,7 +159,7 @@ void MainWindow::open(QString spath)
 void MainWindow::on_action_about_triggered()
 {
     QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.2\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
-    aboutMB.setIconPixmap(QPixmap(":/icon.png"));
+    aboutMB.setIconPixmap(QPixmap(":/HTYIV.png"));
     aboutMB.exec();
 }
 
