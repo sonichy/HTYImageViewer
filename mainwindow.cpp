@@ -16,16 +16,17 @@
 #include <QScrollBar>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    settings(QCoreApplication::organizationName(), QCoreApplication::applicationName())
 {
     ui->setupUi(this);
-    ui->centralWidget->setStyleSheet("background:black;border:none;");
+    ui->centralWidget->setStyleSheet("background:black; border:none;");
     move((QApplication::desktop()->width() - width())/2, (QApplication::desktop()->height() - height())/2);
     path = "";
+    dir = ".";
     index = -1;
     scale = 1.0;
     zoomType = ZoomBig;
@@ -67,27 +68,66 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(autoPlay()));
 
     connect(ui->action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()),this, SLOT(EEFullScreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()),this, SLOT(EEFullScreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()),this, SLOT(exitFullScreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()),this, SLOT(lastImage()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Right),this), SIGNAL(activated()),this, SLOT(nextImage()));
-    connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()),this, SLOT(on_actionRotateRight_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()),this, SLOT(on_actionRotateLeft_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_1),this), SIGNAL(activated()),this, SLOT(on_actionZoom1_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()),this, SLOT(on_actionZoomBig_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()),this, SLOT(on_actionZoomFit_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()),this, SLOT(on_actionInfo_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()),this, SLOT(on_actionPlay_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Delete),this), SIGNAL(activated()),this, SLOT(on_actionTrash_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()),this, SLOT(playPause()));
-    connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()),this, SLOT(on_action_rename_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Plus),this), SIGNAL(activated()),this, SLOT(zoomIn()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Minus),this), SIGNAL(activated()),this, SLOT(zoomOut()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()), this, SLOT(EEFullScreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()), this, SLOT(EEFullScreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()), this, SLOT(exitFullScreen()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()), this, SLOT(lastImage()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Right),this), SIGNAL(activated()), this, SLOT(nextImage()));
+    connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()), this, SLOT(on_actionRotateRight_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()), this, SLOT(on_actionRotateLeft_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_1),this), SIGNAL(activated()), this, SLOT(on_actionZoom1_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()), this, SLOT(on_actionZoomBig_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()), this, SLOT(on_actionZoomFit_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()), this, SLOT(on_actionInfo_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()), this, SLOT(on_actionPlay_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Delete),this), SIGNAL(activated()), this, SLOT(on_actionTrash_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()), this, SLOT(playPause()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()), this, SLOT(on_action_rename_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Plus),this), SIGNAL(activated()), this, SLOT(zoomIn()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Minus),this), SIGNAL(activated()), this, SLOT(zoomOut()));
+
+    QAction *labelAction_edit = new QAction("编辑&E", this);
+    labelAction_edit->setIcon(QIcon::fromTheme("edit"));
+    connect(labelAction_edit, &QAction::triggered, [=](){
+        QString image_editor = settings.value("image_editor").toString();
+        QFileInfo fileInfo(image_editor);
+        if(fileInfo.isFile()){
+            QProcess *process = new QProcess;
+            QStringList arguments;
+            arguments << path;
+            qDebug() << image_editor << path;
+            process->start(image_editor, arguments);
+        }
+    });
+
+    QAction *labelAction_copyto = new QAction("复制到&C", this);
+    labelAction_copyto->setIcon(QIcon::fromTheme("edit-copy"));
+    connect(labelAction_copyto, &QAction::triggered, [=](){
+        dir = settings.value("dir").toString();
+        dir = QFileDialog::getExistingDirectory(NULL, "复制到", dir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        if(dir != "") copy(path, dir, false);
+    });
+
+    QAction *labelAction_moveto = new QAction("移动到&X", this);
+    labelAction_moveto->setIcon(QIcon::fromTheme("edit-cut"));
+    connect(labelAction_moveto, &QAction::triggered, [=](){
+        dir = settings.value("dir").toString();
+        dir = QFileDialog::getExistingDirectory(NULL, "移动到", dir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        if(dir != "") copy(path, dir, true);
+    });
+
+    QMenu *labelMenu = new QMenu;
+    labelMenu->addAction(labelAction_edit);
+    labelMenu->addAction(labelAction_copyto);
+    labelMenu->addAction(labelAction_moveto);
+    ui->label->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->label, &QLabel::customContextMenuRequested, [=](){
+        labelMenu->exec(QCursor::pos());
+    });
 
     QStringList SLargs = QApplication::arguments();
     qDebug() << SLargs;
-    if (SLargs.length()>1) {
+    if (SLargs.length() > 1) {
         QUrl url(SLargs.at(1));
         open(url.toLocalFile());
     }
@@ -102,7 +142,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_open_triggered()
 {
-    if (path=="") path = ".";
+    if (path == "") path = ".";
     path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
     if (path.length() != 0) {
         open(path);
@@ -118,9 +158,40 @@ void MainWindow::open(QString spath)
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.1\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
+    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.2\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
     aboutMB.setIconPixmap(QPixmap(":/icon.png"));
     aboutMB.exec();
+}
+
+void MainWindow::on_action_settings_triggered()
+{
+    if(dialog_set != NULL){
+        dialog_set = new QDialog(this);
+        dialog_set->setWindowTitle("设置");
+        dialog_set->setFixedSize(400,300);
+        QGridLayout *gridLayout = new QGridLayout;
+        gridLayout->setColumnStretch(0, 1);
+        gridLayout->setColumnStretch(1, 3);
+        QLabel *label = new QLabel("图片编辑器");
+        label->setAlignment(Qt::AlignCenter);
+        gridLayout->addWidget(label,0,0,Qt::AlignTop);
+        QPushButton *pushButton_image_editor = new QPushButton;
+        pushButton_image_editor->setStyleSheet("text-align:right;");
+        QString image_editor = settings.value("image_editor").toString();
+        pushButton_image_editor->setText(image_editor);
+        pushButton_image_editor->setToolTip(image_editor);
+        connect(pushButton_image_editor, &QPushButton::clicked, [=](){
+            QString path1 = QFileDialog::getOpenFileName(this, "选择图片编辑器", image_editor, "可执行程序(*)");
+            if(path1 != ""){
+                pushButton_image_editor->setText(path1);
+                pushButton_image_editor->setToolTip(path1);
+                settings.setValue("image_editor", path1);
+            }
+        });
+        gridLayout->addWidget(pushButton_image_editor,0,1,Qt::AlignTop);
+        dialog_set->setLayout(gridLayout);
+        dialog_set->exec();
+    }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
@@ -579,7 +650,6 @@ void MainWindow::wheelEvent(QWheelEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
@@ -587,7 +657,30 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readSettings()
 {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+}
+
+void MainWindow::copy(QString source, QString dir, bool isCut)
+{
+    QString dest = dir + "/" + QFileInfo(source).fileName();
+    if(QFile::copy(source, dest)){
+        QFile file(dest);
+        file.open(QIODevice::ReadOnly);
+        //qDebug() << "修改文件时间" <<
+        if(file.setFileTime(QFileInfo(source).lastModified(), QFileDevice::FileModificationTime)){
+
+        }else{
+           qDebug() << "修改文件时间失败";
+        }
+        if(isCut){
+            if(QFile::remove(source)){
+
+            }else{
+                qDebug() << "删除源文件失败";
+            }
+        }
+    }else{
+        qDebug() << "复制失败";
+    }
 }

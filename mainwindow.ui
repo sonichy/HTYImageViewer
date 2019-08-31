@@ -17,7 +17,7 @@
    <string>海天鹰看图</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset>
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -51,7 +51,7 @@
          <x>0</x>
          <y>0</y>
          <width>798</width>
-         <height>513</height>
+         <height>507</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -92,7 +92,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -116,8 +116,15 @@
     </property>
     <addaction name="action_rename"/>
    </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>选项</string>
+    </property>
+    <addaction name="action_settings"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
    <addaction name="menu_2"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -191,7 +198,8 @@
   </action>
   <action name="actionZoom1">
    <property name="icon">
-    <iconset theme="zoom-original"/>
+    <iconset theme="zoom-original">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>zoom1</string>
@@ -202,7 +210,8 @@
   </action>
   <action name="actionZoomFit">
    <property name="icon">
-    <iconset theme="zoom-fit-best"/>
+    <iconset theme="zoom-fit-best">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>zoomFit</string>
@@ -213,7 +222,8 @@
   </action>
   <action name="actionRotateLeft">
    <property name="icon">
-    <iconset theme="object-rotate-left"/>
+    <iconset theme="object-rotate-left">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>rotateLeft</string>
@@ -224,7 +234,8 @@
   </action>
   <action name="actionRotateRight">
    <property name="icon">
-    <iconset theme="object-rotate-right"/>
+    <iconset theme="object-rotate-right">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>rotateRight</string>
@@ -235,7 +246,8 @@
   </action>
   <action name="actionTrash">
    <property name="icon">
-    <iconset theme="user-trash"/>
+    <iconset theme="user-trash">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>trash</string>
@@ -246,7 +258,8 @@
   </action>
   <action name="actionSetWallpaper">
    <property name="icon">
-    <iconset theme="video-display"/>
+    <iconset theme="video-display">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>setWallpaper</string>
@@ -269,7 +282,8 @@
   </action>
   <action name="actionInfo">
    <property name="icon">
-    <iconset theme="dialog-information"/>
+    <iconset theme="dialog-information">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>info</string>
@@ -292,7 +306,8 @@
   </action>
   <action name="actionPlay">
    <property name="icon">
-    <iconset theme="media-playback-start"/>
+    <iconset theme="media-playback-start">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>play</string>
@@ -304,6 +319,17 @@
   <action name="action_rename">
    <property name="text">
     <string>重命名</string>
+   </property>
+  </action>
+  <action name="action_settings">
+   <property name="icon">
+    <iconset theme="settings"/>
+   </property>
+   <property name="text">
+    <string>设置</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
  </widget>

@@ -8,6 +8,7 @@
 #include <QPrinter>
 #include <QMovie>
 #include <QTimer>
+#include <QSettings>
 
 namespace Ui {
 class MainWindow;
@@ -35,7 +36,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     QLabel *LSB1, *LSB2, *LSB3, *LSB4, *label_info;
-    QString path, dirTrash, dirTrashInfo;
+    QString path, dirTrash, dirTrashInfo, dir;
     int index;
     float scale;
     QFileInfoList fileInfoList;
@@ -55,6 +56,9 @@ private:
     QTimer *timer;
     void enterFullScreen();
     void readSettings();
+    void copy(QString source, QString dir, bool isCut);
+    QSettings settings;
+    QDialog *dialog_set;
 
 private slots:
     void on_action_open_triggered();
@@ -71,6 +75,7 @@ private slots:
     void on_actionTrash_triggered();
     void on_actionSetWallpaper_triggered();
     void on_actionInfo_triggered();
+    void on_action_settings_triggered();
     void EEFullScreen();
     void lastImage();
     void nextImage();
