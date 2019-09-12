@@ -87,6 +87,7 @@ private slots:
     void playPause();
     void zoomIn();
     void zoomOut();
+    void refresh();
 
 };
 

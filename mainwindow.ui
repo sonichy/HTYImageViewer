@@ -313,7 +313,7 @@
     <string>play</string>
    </property>
    <property name="toolTip">
-    <string>幻灯片 F5</string>
+    <string>幻灯片 F6</string>
    </property>
   </action>
   <action name="action_rename">
@@ -323,7 +323,8 @@
   </action>
   <action name="action_settings">
    <property name="icon">
-    <iconset theme="settings"/>
+    <iconset theme="settings">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>设置</string>

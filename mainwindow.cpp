@@ -79,7 +79,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_2),this), SIGNAL(activated()), this, SLOT(on_actionZoomBig_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_3),this), SIGNAL(activated()), this, SLOT(on_actionZoomFit_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_I),this), SIGNAL(activated()), this, SLOT(on_actionInfo_triggered()));
-    connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()), this, SLOT(on_actionPlay_triggered()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F5),this), SIGNAL(activated()), this, SLOT(refresh()));
+    connect(new QShortcut(QKeySequence(Qt::Key_F6),this), SIGNAL(activated()), this, SLOT(on_actionPlay_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Delete),this), SIGNAL(activated()), this, SLOT(on_actionTrash_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()), this, SLOT(playPause()));
     connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()), this, SLOT(on_action_rename_triggered()));
@@ -422,7 +423,9 @@ void MainWindow::rotate(qreal degrees)
 {
     QMatrix matrix;
     matrix.rotate(degrees);
-    QPixmap pixmap = ui->label->pixmap()->transformed(matrix, Qt::SmoothTransformation);
+    QPixmap pixmap(path);
+    pixmap = pixmap.transformed(matrix, Qt::SmoothTransformation);
+    pixmap.save(path);
     ui->label->setPixmap(pixmap);
 }
 
@@ -690,4 +693,9 @@ void MainWindow::copy(QString source, QString dir, bool isCut)
     }else{
         qDebug() << "复制失败";
     }
+}
+
+void MainWindow::refresh()
+{
+    loadImage(path);
 }
