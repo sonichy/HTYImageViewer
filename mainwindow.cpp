@@ -104,16 +104,22 @@ MainWindow::MainWindow(QWidget *parent) :
     labelAction_copyto->setIcon(QIcon::fromTheme("edit-copy"));
     connect(labelAction_copyto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
-        dir = QFileDialog::getExistingDirectory(NULL, "复制到", dir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        if(dir != "") copy(path, dir, false);
+        dir = QFileDialog::getExistingDirectory(NULL, "复制到", dir);
+        if(dir != "") {
+            copy(path, dir, false);
+            settings.setValue("dir", dir);
+        }
     });
 
     QAction *labelAction_moveto = new QAction("移动到&X", this);
     labelAction_moveto->setIcon(QIcon::fromTheme("edit-cut"));
     connect(labelAction_moveto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
-        dir = QFileDialog::getExistingDirectory(NULL, "移动到", dir, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        if(dir != "") copy(path, dir, true);
+        dir = QFileDialog::getExistingDirectory(NULL, "移动到", dir);
+        if(dir != "") {
+            copy(path, dir, true);
+            settings.setValue("dir", dir);
+        }
     });
 
     QMenu *labelMenu = new QMenu;
@@ -392,8 +398,9 @@ void MainWindow::loadImage(QString spath)
         LSB1->setText("分辨率：" + QString::number(image.width()) + " X " + QString::number(image.height()));
         LSB4->setText(QString::number(image_zoom.width()*100/image.width()) + "%");
 
-        //qDebug() << reader.textKeys();
-        QStringList SL = reader.textKeys();
+        //QStringList SL = reader.textKeys();
+        QStringList SL = image.textKeys();
+        qDebug() << SL;
         QString s = "";
         for(int i=0; i<SL.size(); i++){
             s += SL.at(i) + "\t" + reader.text(SL.at(i)) + "\n";
