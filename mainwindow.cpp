@@ -678,11 +678,14 @@ void MainWindow::copy(QString source, QString dir, bool isCut)
         QFile file(dest);
         file.open(QIODevice::ReadOnly);
         //qDebug() << "修改文件时间" <<
+#if (QT_VERSION >= QT_VERSION_CHECK(5,10,0))
         if(file.setFileTime(QFileInfo(source).lastModified(), QFileDevice::FileModificationTime)){
 
         }else{
            qDebug() << "修改文件时间失败";
         }
+#endif
+
         if(isCut){
             if(QFile::remove(source)){
 
