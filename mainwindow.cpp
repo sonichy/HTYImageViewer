@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     label_info->hide();
 
     movie = new QMovie;
-    connect(movie,SIGNAL(frameChanged(int)),this,SLOT(frameChange(int)));
+    connect(movie, SIGNAL(frameChanged(int)), this, SLOT(frameChange(int)));
 
     timer = new QTimer(this);
     timer->setInterval(2000);
@@ -87,9 +87,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_Plus),this), SIGNAL(activated()), this, SLOT(zoomIn()));
     connect(new QShortcut(QKeySequence(Qt::Key_Minus),this), SIGNAL(activated()), this, SLOT(zoomOut()));
 
-    QAction *labelAction_edit = new QAction("编辑&E", this);
-    labelAction_edit->setIcon(QIcon::fromTheme("edit"));
-    connect(labelAction_edit, &QAction::triggered, [=](){
+    QAction *action_edit = new QAction("编辑&E", this);
+    action_edit->setIcon(QIcon::fromTheme("edit"));
+    connect(action_edit, &QAction::triggered, [=](){
         QString image_editor = settings.value("image_editor").toString();
         QFileInfo fileInfo(image_editor);
         if(fileInfo.isFile()){
@@ -101,9 +101,9 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    QAction *labelAction_copyto = new QAction("复制到&C", this);
-    labelAction_copyto->setIcon(QIcon::fromTheme("edit-copy"));
-    connect(labelAction_copyto, &QAction::triggered, [=](){
+    QAction *action_copyto = new QAction("复制到&C", this);
+    action_copyto->setIcon(QIcon::fromTheme("edit-copy"));
+    connect(action_copyto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
         dir = QFileDialog::getExistingDirectory(NULL, "复制到", dir);
         if(dir != "") {
@@ -112,9 +112,9 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    QAction *labelAction_moveto = new QAction("移动到&X", this);
-    labelAction_moveto->setIcon(QIcon::fromTheme("edit-cut"));
-    connect(labelAction_moveto, &QAction::triggered, [=](){
+    QAction *action_moveto = new QAction("移动到&X", this);
+    action_moveto->setIcon(QIcon::fromTheme("edit-cut"));
+    connect(action_moveto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
         dir = QFileDialog::getExistingDirectory(NULL, "移动到", dir);
         if(dir != "") {
@@ -123,13 +123,13 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    QMenu *labelMenu = new QMenu;
-    labelMenu->addAction(labelAction_edit);
-    labelMenu->addAction(labelAction_copyto);
-    labelMenu->addAction(labelAction_moveto);
+    QMenu *menu = new QMenu;
+    menu->addAction(action_edit);
+    menu->addAction(action_copyto);
+    menu->addAction(action_moveto);
     ui->label->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->label, &QLabel::customContextMenuRequested, [=](){
-        labelMenu->exec(QCursor::pos());
+        menu->exec(QCursor::pos());
     });
 
     QStringList SLargs = QApplication::arguments();
@@ -165,7 +165,7 @@ void MainWindow::open(QString spath)
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.2\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
+    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.3\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
     aboutMB.setIconPixmap(QPixmap(":/HTYIV.png"));
     aboutMB.exec();
 }
@@ -591,10 +591,20 @@ void MainWindow::autoPlay()
 
 void MainWindow::playPause()
 {
-    if(timer->isActive()){
-        timer->stop();
+    //qDebug() << "pause";
+    QString MIME = QMimeDatabase().mimeTypeForFile(fileInfoList.at(index).absoluteFilePath()).name();
+    if(MIME == "image/gif"){
+        if(movie->state() == QMovie::Running){
+            movie->stop();
+        }else{
+            movie->start();
+        }
     }else{
-        timer->start();
+        if(timer->isActive()){
+            timer->stop();
+        }else{
+            timer->start();
+        }
     }
 }
 

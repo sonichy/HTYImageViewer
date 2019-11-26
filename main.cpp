@@ -3,10 +3,10 @@
 
 int main(int argc, char *argv[])
 {
+    qSetMessagePattern("[ %{file}: %{line} ] %{message}");
     QApplication a(argc, argv);
     a.setOrganizationName("HTY");
     a.setApplicationName("ImageViewer");
-    qSetMessagePattern("[ %{file}: %{line} ] %{message}");
     MainWindow w;
     w.show();
     return a.exec();
