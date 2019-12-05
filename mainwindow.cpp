@@ -135,8 +135,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QStringList SLargs = QApplication::arguments();
     qDebug() << SLargs;
     if (SLargs.length() > 1) {
-        QUrl url(SLargs.at(1));
-        open(url.toLocalFile());
+        if (SLargs.at(1).startsWith("file://")) {
+            QUrl url(SLargs.at(1));
+            open(url.toLocalFile());
+        } else {
+            open(SLargs.at(1));
+        }
     }
 
     readSettings();

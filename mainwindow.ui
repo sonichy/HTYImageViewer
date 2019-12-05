@@ -17,8 +17,8 @@
    <string>海天鹰看图</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
+   <iconset resource="res.qrc">
+    <normaloff>:/HTYIV.png</normaloff>:/HTYIV.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -51,7 +51,7 @@
          <x>0</x>
          <y>0</y>
          <width>798</width>
-         <height>507</height>
+         <height>513</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -92,7 +92,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
