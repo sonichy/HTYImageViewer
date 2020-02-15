@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     qSetMessagePattern("[ %{file}: %{line} ] %{message}");
     QApplication a(argc, argv);
     a.setOrganizationName("HTY");
-    a.setApplicationName("ImageViewer");
+    a.setApplicationName("HTYImageViewer");
     MainWindow w;
     w.show();
     return a.exec();

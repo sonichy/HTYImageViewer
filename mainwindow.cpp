@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_F6),this), SIGNAL(activated()), this, SLOT(on_actionPlay_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Delete),this), SIGNAL(activated()), this, SLOT(on_actionTrash_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()), this, SLOT(playPause()));
-    connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()), this, SLOT(on_action_rename_triggered()));
+    //connect(new QShortcut(QKeySequence(Qt::Key_F2),this), SIGNAL(activated()), this, SLOT(on_action_rename_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_Plus),this), SIGNAL(activated()), this, SLOT(zoomIn()));
     connect(new QShortcut(QKeySequence(Qt::Key_Minus),this), SIGNAL(activated()), this, SLOT(zoomOut()));
 
@@ -91,13 +91,18 @@ MainWindow::MainWindow(QWidget *parent) :
     action_edit->setIcon(QIcon::fromTheme("edit"));
     connect(action_edit, &QAction::triggered, [=](){
         QString image_editor = settings.value("image_editor").toString();
-        QFileInfo fileInfo(image_editor);
-        if(fileInfo.isFile()){
-            QProcess *process = new QProcess;
-            QStringList arguments;
-            arguments << path;
-            qDebug() << image_editor << path;
-            process->start(image_editor, arguments);
+        if(image_editor == ""){
+            QMessageBox MB(QMessageBox::Critical, "错误", "没有设置图片编辑器！");
+            MB.exec();
+        }else{
+            QFileInfo fileInfo(image_editor);
+            if(fileInfo.isFile()){
+                QProcess *process = new QProcess;
+                QStringList arguments;
+                arguments << path;
+                qDebug() << image_editor << path;
+                process->start(image_editor, arguments);
+            }
         }
     });
 
@@ -169,9 +174,9 @@ void MainWindow::open(QString spath)
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.3\n一款基于Qt的看图程序。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
-    aboutMB.setIconPixmap(QPixmap(":/HTYIV.png"));
-    aboutMB.exec();
+    QMessageBox MB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.5\n一款基于Qt的看图程序。\n作者：海天鹰\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
+    MB.setIconPixmap(QPixmap(":/HTYIV.png"));
+    MB.exec();
 }
 
 void MainWindow::on_action_settings_triggered()
@@ -366,7 +371,7 @@ void MainWindow::loadImage(QString spath)
         movie->start();
     }else{
         QImageReader reader(spath);
-        reader.setAutoTransform(true);  // auto rotate image
+        reader.setAutoTransform(true);  // EXIF rotate information
         QImage image = reader.read();
         QImage image_zoom = image;
 
@@ -614,13 +619,16 @@ void MainWindow::playPause()
 
 void MainWindow::on_action_rename_triggered()
 {
-    if(ui->label->pixmap() !=0){
+    if(ui->label->pixmap() != 0){
         QDialog *dialog = new QDialog(this);
+        //dialog->setWindowFlags(Qt::WindowCloseButtonHint);    //只显示关闭，无效
+        dialog->setFixedSize(200,100);      //需要测算大小
         dialog->setWindowTitle("重命名");
         QVBoxLayout *vbox = new QVBoxLayout;
         QLineEdit *lineEdit = new QLineEdit;
         lineEdit->setText(QFileInfo(path).baseName());
-        lineEdit->setCursorPosition(0);
+        //lineEdit->setCursorPosition(0);
+        lineEdit->selectAll();
         vbox->addWidget(lineEdit);
         QHBoxLayout *hbox = new QHBoxLayout;
         QPushButton *pushButtonConfirm = new QPushButton("确定");
@@ -633,7 +641,7 @@ void MainWindow::on_action_rename_triggered()
         connect(pushButtonCancel, SIGNAL(clicked()), dialog, SLOT(reject()));
         if(dialog->exec() == QDialog::Accepted){
             setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
-            QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "."+ QFileInfo(path).suffix();
+            QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "." + QFileInfo(path).suffix();
             qDebug() << "rename" << path << newName;
             if (QFile::rename(path, newName)) {
                 path = newName;
@@ -714,5 +722,6 @@ void MainWindow::copy(QString source, QString dir, bool isCut)
 
 void MainWindow::refresh()
 {
-    loadImage(path);
+    if(path != "")
+        loadImage(path);
 }
