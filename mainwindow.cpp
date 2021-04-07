@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(new QShortcut(QKeySequence(Qt::Key_Return),this), SIGNAL(activated()), this, SLOT(EEFullScreen()));
     connect(new QShortcut(QKeySequence(Qt::Key_Enter),this), SIGNAL(activated()), this, SLOT(EEFullScreen()));
     connect(new QShortcut(QKeySequence(Qt::Key_Escape),this), SIGNAL(activated()), this, SLOT(exitFullScreen()));
-    connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()), this, SLOT(lastImage()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()), this, SLOT(prevImage()));
     connect(new QShortcut(QKeySequence(Qt::Key_Right),this), SIGNAL(activated()), this, SLOT(nextImage()));
     connect(new QShortcut(QKeySequence(Qt::Key_R),this), SIGNAL(activated()), this, SLOT(on_actionRotateRight_triggered()));
     connect(new QShortcut(QKeySequence(Qt::Key_L),this), SIGNAL(activated()), this, SLOT(on_actionRotateLeft_triggered()));
@@ -91,12 +91,12 @@ MainWindow::MainWindow(QWidget *parent) :
     action_edit->setIcon(QIcon::fromTheme("edit"));
     connect(action_edit, &QAction::triggered, [=](){
         QString image_editor = settings.value("image_editor").toString();
-        if(image_editor == ""){
+        if (image_editor == "") {
             QMessageBox MB(QMessageBox::Critical, "错误", "没有设置图片编辑器！");
             MB.exec();
-        }else{
+        } else {
             QFileInfo fileInfo(image_editor);
-            if(fileInfo.isFile()){
+            if (fileInfo.isFile()) {
                 QProcess *process = new QProcess;
                 QStringList arguments;
                 arguments << path;
@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
     action_copyto->setIcon(QIcon::fromTheme("edit-copy"));
     connect(action_copyto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
-        dir = QFileDialog::getExistingDirectory(NULL, "复制到", dir);
+        dir = QFileDialog::getExistingDirectory(nullptr, "复制到", dir);
         if(dir != "") {
             copy(path, dir, false);
             settings.setValue("dir", dir);
@@ -121,8 +121,8 @@ MainWindow::MainWindow(QWidget *parent) :
     action_moveto->setIcon(QIcon::fromTheme("edit-cut"));
     connect(action_moveto, &QAction::triggered, [=](){
         dir = settings.value("dir").toString();
-        dir = QFileDialog::getExistingDirectory(NULL, "移动到", dir);
-        if(dir != "") {
+        dir = QFileDialog::getExistingDirectory(nullptr, "移动到", dir);
+        if (dir != "") {
             copy(path, dir, true);
             settings.setValue("dir", dir);
         }
@@ -158,7 +158,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_open_triggered()
 {
-    if (path == "") path = ".";
+    if (path == "")
+        path = ".";
     path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.gif *.svg)");
     if (path.length() != 0) {
         open(path);
@@ -174,14 +175,14 @@ void MainWindow::open(QString spath)
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox MB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.5\n一款基于Qt的看图程序。\n作者：海天鹰\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
+    QMessageBox MB(QMessageBox::NoIcon, "关于", "海天鹰看图 1.6\n一款基于Qt的看图程序。\n作者：海天鹰\nE-mail: sonichy@163.com\n主页：https://github.com/sonichy");
     MB.setIconPixmap(QPixmap(":/HTYIV.png"));
     MB.exec();
 }
 
 void MainWindow::on_action_settings_triggered()
 {
-    if(dialog_set != NULL){
+    if (dialog_set != nullptr) {
         dialog_set = new QDialog(this);
         dialog_set->setWindowTitle("设置");
         dialog_set->setFixedSize(400,300);
@@ -198,7 +199,7 @@ void MainWindow::on_action_settings_triggered()
         pushButton_image_editor->setToolTip(image_editor);
         connect(pushButton_image_editor, &QPushButton::clicked, [=](){
             QString path1 = QFileDialog::getOpenFileName(this, "选择图片编辑器", image_editor, "可执行程序(*)");
-            if(path1 != ""){
+            if (path1 != "") {
                 pushButton_image_editor->setText(path1);
                 pushButton_image_editor->setToolTip(path1);
                 settings.setValue("image_editor", path1);
@@ -271,6 +272,8 @@ void MainWindow::genList(QString spath)
 {
     // 读取文件夹下所有文件 https://www.cnblogs.com/findumars/p/6006129.html
     qDebug() << "genList" << spath;
+    if (!QFileInfo(spath).isDir())
+        return;
     QDir dir(spath);
     QStringList filters;
     filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.svg";
@@ -278,30 +281,28 @@ void MainWindow::genList(QString spath)
     dir.setSorting(QDir::Name);
     fileInfoList.clear();
     fileInfoList = dir.entryInfoList();
-    for (int i = 0; i < fileInfoList.size(); i++) {
+    for (int i=0; i<fileInfoList.size(); i++) {
         QFileInfo fileInfo = fileInfoList.at(i);
         //qDebug() << fileInfo.absoluteFilePath() << path;
         if (fileInfo.absoluteFilePath() == path) {
             index = i;
             //qDebug() << i << "/" << fileInfoList.size();
-            LSB2->setText(QString::number(i+1) + "/" + QString::number(fileInfoList.size()));
-            LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
             break;
         }
     }
+    LSB2->setText(QString::number(index + 1) + "/" + QString::number(fileInfoList.size()));
+    LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
 }
 
-void MainWindow::lastImage()
+void MainWindow::prevImage()
 {
     if (ui->scrollArea->horizontalScrollBar()->visibleRegion().isEmpty()) { // 横向滚动条没有显示
         int id = index - 1;
         if (id > -1) {
             path = fileInfoList.at(id).absoluteFilePath();
             scale = 1.0;
-            loadImage(path);
             index = id;
-            LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
-            LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
+            loadImage(path);
         }
     } else {
         ui->scrollArea->horizontalScrollBar()->setValue(ui->scrollArea->horizontalScrollBar()->value() - 20);
@@ -315,10 +316,8 @@ void MainWindow::nextImage()
         if (id < fileInfoList.size()) {
             path = fileInfoList.at(id).absoluteFilePath();
             scale = 1.0;
-            loadImage(path);
             index = id;
-            LSB2->setText(QString::number(id+1) + "/" + QString::number(fileInfoList.size()));
-            LSB3->setText(BS(QFileInfo(path).size()) + " " + QFileInfo(path).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
+            loadImage(path);
         }
     } else {
         ui->scrollArea->horizontalScrollBar()->setValue(ui->scrollArea->horizontalScrollBar()->value() + 20);
@@ -327,7 +326,7 @@ void MainWindow::nextImage()
 
 void MainWindow::on_actionZoom1_triggered()
 {
-    if(ui->label->pixmap() != 0){
+    if (ui->label->pixmap() != 0) {
         zoomType = ZoomOriginal;
         loadImage(fileInfoList.at(index).absoluteFilePath());
     }
@@ -335,7 +334,7 @@ void MainWindow::on_actionZoom1_triggered()
 
 void MainWindow::on_actionZoomBig_triggered()
 {
-    if(ui->label->pixmap() != 0){
+    if (ui->label->pixmap() != 0) {
         zoomType = ZoomBig;
         loadImage(fileInfoList.at(index).absoluteFilePath());
     }
@@ -343,7 +342,7 @@ void MainWindow::on_actionZoomBig_triggered()
 
 void MainWindow::on_actionZoomFit_triggered()
 {
-    if(ui->label->pixmap() != 0){
+    if (ui->label->pixmap() != 0) {
         zoomType = ZoomFit;
         loadImage(fileInfoList.at(index).absoluteFilePath());
     }
@@ -351,25 +350,31 @@ void MainWindow::on_actionZoomFit_triggered()
 
 void MainWindow::on_actionRotateLeft_triggered()
 {
-    if(ui->label->pixmap() != 0)
+    if (ui->label->pixmap() != 0)
         rotate(-90);
 }
 
 void MainWindow::on_actionRotateRight_triggered()
 {
-    if(ui->label->pixmap() != 0)
+    if (ui->label->pixmap() != 0)
         rotate(90);
 }
 
 void MainWindow::loadImage(QString spath)
 {
     movie->stop();
+    QFile file(spath);
+    if (!file.exists()) {
+        genList(QFileInfo(spath).absolutePath());
+        index = 0;
+        spath = fileInfoList.at(0).absoluteFilePath();
+    }
     setWindowTitle(QFileInfo(spath).fileName());
     QString MIME = QMimeDatabase().mimeTypeForFile(spath).name();
-    if(MIME == "image/gif"){
+    if (MIME == "image/gif") {
         movie->setFileName(spath);
         movie->start();
-    }else{
+    } else {
         QImageReader reader(spath);
         reader.setAutoTransform(true);  // EXIF rotate information
         QImage image = reader.read();
@@ -381,8 +386,8 @@ void MainWindow::loadImage(QString spath)
         int dy = 50;
         QBrush brush1(QColor(200,200,200));
         QBrush brush2(QColor(255,255,255));
-        for(int y=0; y<image_zoom.height(); y+=dy){
-            for(int x=0; x<image_zoom.width(); x+=dx){
+        for (int y=0; y<image_zoom.height(); y+=dy) {
+            for (int x=0; x<image_zoom.width(); x+=dx) {
                 painter.fillRect(x, y, dx/2, dy/2, brush1);
                 painter.fillRect(x + dx/2, y, dx/2, dy/2, brush2);
                 painter.fillRect(x, y + dy/2, dx/2, dy/2, brush2);
@@ -391,33 +396,35 @@ void MainWindow::loadImage(QString spath)
         }
         painter.drawImage(0,0,image);
 
-        if(zoomType == ZoomFit){
+        if (zoomType == ZoomFit) {
             image_zoom = image_zoom.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
             scale = ui->centralWidget->width()/image.width();
-        }else if(zoomType == ZoomBig){
-            if(image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height()){
+        } else if(zoomType == ZoomBig) {
+            if (image.width() > ui->centralWidget->width() || image.height() > ui->centralWidget->height()) {
                 image_zoom = image_zoom.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 scale = ui->centralWidget->width()/image.width();
             }
-        }else if(zoomType == ZoomOriginal){
+        } else if (zoomType == ZoomOriginal) {
             scale = 1;
-        }else if(zoomType == ZoomManual){
+        } else if (zoomType == ZoomManual) {
             image_zoom = image_zoom.scaled(image.size() * scale, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         }
         ui->label->setPixmap(QPixmap::fromImage(image_zoom));
         LSB1->setText("分辨率：" + QString::number(image.width()) + " X " + QString::number(image.height()));
+        LSB2->setText(QString::number(index + 1) + "/" + QString::number(fileInfoList.size()));
+        LSB3->setText(BS(QFileInfo(spath).size()) + " " + QFileInfo(spath).lastModified().toString("yyyy-MM-dd hh:mm:ss"));
         LSB4->setText(QString::number(image_zoom.width()*100/image.width()) + "%");
 
         //QStringList SL = reader.textKeys();
         QStringList SL = image.textKeys();
-        qDebug() << SL;
+        //qDebug() << SL;
         QString s = "";
-        for(int i=0; i<SL.size(); i++){
+        for (int i=0; i<SL.size(); i++) {
             s += SL.at(i) + "\t" + reader.text(SL.at(i)) + "\n";
         }
         //qDebug() << s;
         label_info->setText(s);
-    }
+    }    
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -440,40 +447,57 @@ void MainWindow::rotate(qreal degrees)
 
 void MainWindow::on_actionTrash_triggered()
 {
-    if(ui->label->pixmap() !=0){
-#ifdef Q_OS_LINUX
-        if(!QDir(dirTrash).exists()) QDir().mkpath(dirTrash);
-        if(!QDir(dirTrashInfo).exists()) QDir().mkpath(dirTrashInfo);
+    if (ui->label->pixmap() != 0) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,15,0))
+    QString filepath = fileInfoList.at(index).absoluteFilePath();
+    QFile file(filepath);
+    if (file.moveToTrash()) {
+        genList(QFileInfo(filepath).absolutePath());
+        qDebug() << index << fileInfoList.size();
+        if (index >= fileInfoList.size())
+            index--;
+        loadImage(fileInfoList.at(index).absoluteFilePath());
+    } else {
+        QMessageBox::critical(nullptr, "错误", "无法删除图片 " + filepath);
+    }
+#else
+    #ifdef Q_OS_LINUX
+        if (!QDir(dirTrash).exists())
+            QDir().mkpath(dirTrash);
+        if (!QDir(dirTrashInfo).exists())
+            QDir().mkpath(dirTrashInfo);
         QString filepath = fileInfoList.at(index).absoluteFilePath();
         QString newName = dirTrash + "/" + QFileInfo(filepath).fileName();
         if (QFile::copy(filepath, newName)) {
             QString pathinfo = dirTrashInfo + "/" + QFileInfo(filepath).fileName() + ".trashinfo";
             QFile file(pathinfo);
             if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                QTextStream stream(&file);
+                QTextStream TS(&file);
                 QDateTime time = QDateTime::currentDateTime();
-                stream << "[Trash Info]\nPath=" + filepath + "\nDeletionDate=" + time.toString("yyyy-MM-ddThh:mm:ss");
+                TS << "[Trash Info]\nPath=" + filepath + "\nDeletionDate=" + time.toString("yyyy-MM-ddThh:mm:ss");
                 file.close();
             }
             if (QFile::remove(filepath)) {
                 genList(QFileInfo(filepath).absolutePath());
                 qDebug() << index << fileInfoList.size();
-                if (index >= fileInfoList.size()) index--;
+                if (index >= fileInfoList.size())
+                    index--;
                 loadImage(fileInfoList.at(index).absoluteFilePath());
             } else {
-                QMessageBox::critical(NULL, "错误", "无法删除文件 " + filepath);
+                QMessageBox::critical(nullptr, "错误", "无法删除图片 " + filepath);
             }
         } else {
-            QMessageBox::critical(NULL, "错误", "无法移动 " + filepath + " 到回收站");
+            QMessageBox::critical(nullptr, "错误", "无法移动 " + filepath + " 到回收站");
         }
+    #endif
 #endif
     }
 }
 
 void MainWindow::on_actionSetWallpaper_triggered()
 {
-    if(ui->label->pixmap() !=0){
-        if(index != -1){
+    if (ui->label->pixmap() != 0) {
+        if (index != -1) {
 #ifdef Q_OS_LINUX
             QString cmd = "gsettings set org.gnome.desktop.background picture-uri file://" + fileInfoList.at(index).absoluteFilePath();
             qDebug() << cmd;
@@ -517,15 +541,15 @@ QString MainWindow::BS(qint64 b)
 {
     QString s = "";
     if (b > 999999999) {
-        s = QString::number(b/(1024*1024*1024.0),'f',2) + " GB";
+        s = QString::number(b/(1024*1024*1024.0), 'f', 2) + " GB";
     } else {
         if (b > 999999){
-            s = QString::number(b/(1024*1024.0),'f',2) + " MB";
+            s = QString::number(b/(1024*1024.0), 'f', 2) + " MB";
         } else {
             if (b > 999) {
-                s = QString::number(b/1024.0,'f',2) + " KB";
+                s = QString::number(b/1024.0, 'f', 2) + " KB";
             } else {
-                s = QString::number(b)+" B";
+                s = QString::number(b) + " B";
             }
         }
     }
@@ -535,10 +559,10 @@ QString MainWindow::BS(qint64 b)
 void MainWindow::on_actionInfo_triggered()
 {
     qDebug() << label_info->isHidden();
-    if(label_info->isHidden()){
+    if (label_info->isHidden()) {
         label_info->show();
         label_info->raise();
-    }else{
+    } else {
         label_info->hide();
     }
 }
@@ -547,7 +571,7 @@ void MainWindow::frameChange(int fn)
 {
     QPixmap pixmap = movie->currentPixmap();
     QPixmap pixmap_zoom = pixmap;
-    if(zoomType == ZoomFit){
+    if (zoomType == ZoomFit) {
         pixmap_zoom = pixmap.scaled(ui->centralWidget->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     ui->label->setPixmap(pixmap_zoom);
@@ -593,7 +617,7 @@ void MainWindow::on_actionPlay_triggered()
 
 void MainWindow::autoPlay()
 {
-    if(index > fileInfoList.size()-1)
+    if (index > fileInfoList.size() - 1)
         index = 0;
     nextImage();
 }
@@ -602,16 +626,16 @@ void MainWindow::playPause()
 {
     //qDebug() << "pause";
     QString MIME = QMimeDatabase().mimeTypeForFile(fileInfoList.at(index).absoluteFilePath()).name();
-    if(MIME == "image/gif"){
-        if(movie->state() == QMovie::Running){
+    if (MIME == "image/gif") {
+        if (movie->state() == QMovie::Running) {
             movie->stop();
-        }else{
+        } else {
             movie->start();
         }
-    }else{
-        if(timer->isActive()){
+    } else {
+        if (timer->isActive()) {
             timer->stop();
-        }else{
+        } else {
             timer->start();
         }
     }
@@ -619,14 +643,14 @@ void MainWindow::playPause()
 
 void MainWindow::on_action_rename_triggered()
 {
-    if(ui->label->pixmap() != 0){
+    if (ui->label->pixmap() != 0) {
         QDialog *dialog = new QDialog(this);
-        //dialog->setWindowFlags(Qt::WindowCloseButtonHint);    //只显示关闭，无效
+        dialog->setWindowFlags(Qt::Tool);   //去最小化按钮
         dialog->setFixedSize(200,100);      //需要测算大小
         dialog->setWindowTitle("重命名");
         QVBoxLayout *vbox = new QVBoxLayout;
         QLineEdit *lineEdit = new QLineEdit;
-        lineEdit->setText(QFileInfo(path).baseName());
+        lineEdit->setText(QFileInfo(path).completeBaseName());
         //lineEdit->setCursorPosition(0);
         lineEdit->selectAll();
         vbox->addWidget(lineEdit);
@@ -639,15 +663,15 @@ void MainWindow::on_action_rename_triggered()
         dialog->setLayout(vbox);
         connect(pushButtonConfirm, SIGNAL(clicked()), dialog, SLOT(accept()));
         connect(pushButtonCancel, SIGNAL(clicked()), dialog, SLOT(reject()));
-        if(dialog->exec() == QDialog::Accepted){
+        if (dialog->exec() == QDialog::Accepted) {
             setWindowTitle(lineEdit->text() + "."+ QFileInfo(path).suffix());
             QString newName = QFileInfo(path).absolutePath() + "/" + lineEdit->text() + "." + QFileInfo(path).suffix();
             qDebug() << "rename" << path << newName;
             if (QFile::rename(path, newName)) {
                 path = newName;
                 setWindowTitle(QFileInfo(path).fileName());
-            }else{
-                QMessageBox::critical(NULL, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
+            } else {
+                QMessageBox::critical(nullptr, "错误", "无法重命名文件，该文件已存在！", QMessageBox::Ok);
             }
         }
         dialog->close();
@@ -664,7 +688,7 @@ void MainWindow::zoomIn()
 
 void MainWindow::zoomOut()
 {
-    if(scale > 0.1){
+    if (scale > 0.1) {
         zoomType = ZoomManual;
         scale -= 0.1;
         loadImage(path);
@@ -673,9 +697,9 @@ void MainWindow::zoomOut()
 
 void MainWindow::wheelEvent(QWheelEvent *e)
 {
-    if(e->delta() > 0){
+    if (e->delta() > 0) {
         zoomIn();
-    }else{
+    } else {
         zoomOut();
     }
 }
@@ -696,32 +720,33 @@ void MainWindow::readSettings()
 void MainWindow::copy(QString source, QString dir, bool isCut)
 {
     QString dest = dir + "/" + QFileInfo(source).fileName();
-    if(QFile::copy(source, dest)){
+    if (QFile::copy(source, dest)) {
         QFile file(dest);
         file.open(QIODevice::ReadOnly);
         //qDebug() << "修改文件时间" <<
 #if (QT_VERSION >= QT_VERSION_CHECK(5,10,0))
-        if(file.setFileTime(QFileInfo(source).lastModified(), QFileDevice::FileModificationTime)){
+        if (file.setFileTime(QFileInfo(source).lastModified(), QFileDevice::FileModificationTime)) {
 
-        }else{
+        } else {
            qDebug() << "修改文件时间失败";
         }
 #endif
 
-        if(isCut){
-            if(QFile::remove(source)){
+        if (isCut) {
+            if (QFile::remove(source)) {
 
-            }else{
+            } else {
                 qDebug() << "删除源文件失败";
             }
         }
-    }else{
+    } else {
         qDebug() << "复制失败";
     }
 }
 
 void MainWindow::refresh()
 {
-    if(path != "")
+    genList(QFileInfo(path).absolutePath());
+    if (path != "")
         loadImage(path);
 }

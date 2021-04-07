@@ -9,6 +9,7 @@
 #include <QMovie>
 #include <QTimer>
 #include <QSettings>
+#include <QFileSystemWatcher>
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -38,7 +39,7 @@ private:
     QLabel *LSB1, *LSB2, *LSB3, *LSB4, *label_info;
     QString path, dirTrash, dirTrashInfo, dir;
     int index;
-    float scale;
+    qreal scale;
     QFileInfoList fileInfoList;
     void open(QString filepath);
     void genList(QString spath);
@@ -77,7 +78,7 @@ private slots:
     void on_actionInfo_triggered();
     void on_action_settings_triggered();
     void EEFullScreen();
-    void lastImage();
+    void prevImage();
     void nextImage();
     void rotate(qreal degrees);
     void printDocument(QPrinter *printer);
